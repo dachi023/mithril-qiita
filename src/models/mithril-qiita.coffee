@@ -18,8 +18,7 @@ mq.request = (method, path, params = {}) ->
   if method is 'GET'
     req.url += "?#{("#{k}=#{v}" for k, v of params).join '&'}"
   else
-    if mq.token()?
-      throw new Error()
+    throw new Error('mq.token() is must not blank') if !mq.token()?
     req.data = req
   m.request req
 
@@ -36,7 +35,7 @@ mq.users = (id = null) ->
   func =
     list: (params) -> mq.get base, params
   if id?
-    path = "#{base}/#{_id}"
+    path = "#{base}/#{id}"
     followers = "#{path}/followers"
     followees = "#{path}/followees"
     following = "#{path}/following"
@@ -59,7 +58,7 @@ mq.users = (id = null) ->
       list: (params) -> mq.get stocks , params
   func
 
-mq.item = (id = null) ->
+mq.items = (id = null) ->
   #TODO
   #base = "/api/v2/items/#{id}"
 
