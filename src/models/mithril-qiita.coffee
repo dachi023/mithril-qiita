@@ -2,16 +2,21 @@ m = require 'mithril'
 
 #props
 mq =
-  endpoint: m.prop ''
-  token: m.prop ''
+  endpoint: m.prop null
+  token: m.prop null
   background: m.prop false
   initialValue: m.prop undefined
 
 #call api
 mq.request = (method, path, params = {}) ->
+  throw new Error 'mq.endpoint() is null' if !mq.endpoint()?
   method = method.toUpperCase()
   req =
-    config: (xhr) -> xhr.setRequestHeader 'Authorization', "Bearer #{mq.token()}"
+    config: do ->
+      if mq.token()?
+        (xhr) -> xhr.setRequestHeader 'Authorization', "Bearer #{mq.token()}"
+      else
+        (xhr) ->
     method: method
     url: "#{mq.endpoint()}#{path}"
     background: mq.background()
