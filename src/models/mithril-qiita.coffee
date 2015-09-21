@@ -25,7 +25,7 @@ mq.request = (method, path, params = {}) ->
     req.url += "?#{("#{k}=#{v}" for k, v of params).join '&'}"
   else
     throw new Error 'mq.token() is null' if !mq.token()?
-    req.data = req
+    req.data = params
   m.request req
 
 #request methods
