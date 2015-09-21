@@ -1,4 +1,5 @@
 m = require 'mithril'
+
 #props
 mq =
   endpoint: m.prop ''
@@ -13,12 +14,12 @@ mq.request = (method, path, params = {}) ->
     config: (xhr) -> xhr.setRequestHeader 'Authorization', "Bearer #{mq.token()}"
     method: method
     url: "#{mq.endpoint()}#{path}"
-    background: if mq.background()? then mq.background() else false
-    initialValue: if mq.initialValue()? then mq.initialValue() else undefined
+    background: mq.background()
+    initialValue: mq.initialValue()
   if method is 'GET'
     req.url += "?#{("#{k}=#{v}" for k, v of params).join '&'}"
   else
-    throw new Error('mq.token() is must not blank') if !mq.token()?
+    throw new Error 'mq.token() is null' if !mq.token()?
     req.data = req
   m.request req
 
@@ -58,8 +59,34 @@ mq.users = (id = null) ->
       list: (params) -> mq.get stocks , params
   func
 
+#/items
 mq.items = (id = null) ->
-  #TODO
-  #base = "/api/v2/items/#{id}"
+  throw new Error 'item-id is null' if !id?
+  base = "/api/v2/items/#{id}"
+  comments = "#{base}/comments"
+  taggings = "#{base}/taggings"
+  stockers = "#{base}/stockers"
+  like = "#{base}/like"
+  stock = "#{base}/stock"
+  func =
+    get: -> mq.get base
+    update: (params) -> mq.patch base, params
+    delete: -> mq.delete base
+  func.comments =
+    list: (params) -> mq.get comments, params
+    add: (params) -> mq.post comments, params
+  func.taggings =
+    add: (params) -> mq.post taggings, params
+    delete: (id = null) -> if id? then mq.delete "#{taggings}/#{id}" else throw new Error 'tag-id is null'
+  func.stockers =
+    list: (params) ->mq.get stockers, params
+  func.like =
+    add: -> mq.put like
+    delete: -> mq.delete like
+  func.stock =
+    get: (params) -> mq.get stock, params
+    add: -> mq.put stock
+    delete: -> mq.delete stock
+  func
 
 module.exports = mq
